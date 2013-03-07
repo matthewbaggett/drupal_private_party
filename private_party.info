@@ -1,0 +1,8 @@
+name = Private Party
+description = Support for having closed websites for a private party of individuals.
+core = 7.x
+files[] = includes/classes/SWIFTMailSystem.inc
+files[] = includes/classes/html2text.inc
+configure = admin/private_party
+dependencies[] = mailsystem
+dependencies[] = active_record

@@ -1,0 +1,32 @@
+<?php 
+$header = array();
+$header[] = t('Username');
+$header[] = t('Roles');
+$header[] = t('Email Address');
+$header[] = t('Last Seen');
+$header[] = t('Created');
+$header[] = array(
+		'data' => t('Operations'),
+		'colspan' => '3'
+);
+
+$rows = array();
+foreach ($users as $user):
+	$row = array();
+	$row[] = $user->name;
+	$row[] = implode(", ", $user->get_roles());
+	$row[] = $user->mail;
+	$row[] = $user->access > 0 ? date("Y-m-d H:i:s", $user->access) : 'never';
+	$row[] = $user->created > 0 ? date("Y-m-d H:i:s", $user->created) : 'never';
+	$row[] = l(t("Send Invite"),"user/{$user->uid}/private_party/invite");
+	$row[] = l(t("Edit"),"user/{$user->uid}/edit&destination=admin/private_party");
+	$row[] = l(t("View"),"user/{$user->uid}");
+	$rows[] = $row;
+endforeach; 
+?>
+<h3><?=t("Private Party Users")?>:</h3>
+<div class="form-item">
+	<div class="table-wrapper">
+		<?=theme('table', array('header' => $header, 'rows' => $rows, 'empty' => t('No users found. Wat.')));?>
+	</div>
+</div>
