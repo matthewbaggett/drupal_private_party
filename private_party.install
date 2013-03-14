@@ -1,15 +1,15 @@
-<?php 
+<?php
 
 function private_party_install(){
-	db_query("
-		ALTER TABLE {users} 
+  db_query("
+		ALTER TABLE {users}
 			ADD `pp_onetime_sent` ENUM('Yes', 'No') NOT NULL DEFAULT  'No',
 			ADD `pp_onetime_key` VARCHAR( 40 ) NOT NULL
 	");
 }
 
 function private_party_uninstall() {
-	db_query("
+  db_query("
 		ALTER TABLE {`users`}
   			DROP `pp_onetime_sent`,
   			DROP `pp_onetime_key`;
@@ -20,7 +20,7 @@ function private_party_uninstall() {
  * Private Party columns pp_onetime_sent & pp_onetime_key should be nullable.
  */
 function private_party_update_7000(){
-	db_query("ALTER TABLE  {users} CHANGE `pp_onetime_sent`  `pp_onetime_sent` ENUM(  'Yes',  'No' ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT  'No'");
-	db_query("ALTER TABLE  {users} CHANGE `pp_onetime_key`  `pp_onetime_key` VARCHAR( 40 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL");
+  db_query("ALTER TABLE  {users} CHANGE `pp_onetime_sent`  `pp_onetime_sent` ENUM(  'Yes',  'No' ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT  'No'");
+  db_query("ALTER TABLE  {users} CHANGE `pp_onetime_key`  `pp_onetime_key` VARCHAR( 40 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL");
 
 }
