@@ -1,89 +1,330 @@
-<?php 
+<?php
+require_once("models/private_party_group_user.inc");
+require_once("models/private_party_groups.inc");
+/**
+ * Implement hook_menu()
+ *
+ * @return mixed
+ */
+function private_party_menu() {
+  $items['admin/private_party']         = array(
+    'title'            => 'Administer Private Party Users',
+    'description'      => 'Administer Private Party Users',
+    'page callback'    => 'private_party_users_list',
+    //'file' 			=> 'private_party.users.inc',
+    'access callback'  => 'private_party_check_permission',
+    'access arguments' => array('administer users')
+  );
 
-function private_party_menu(){
-	$items['admin/private_party'] = array(
-		'title'				=> 'Administer Private Party Users',
-		'description' 		=> 'Administer Private Party Users',
-		'page callback' 	=> 'private_party_users_list',
-		//'file' 			=> 'private_party.users.inc',
-		'access callback' 	=> 'private_party_check_permission',
-		'access arguments' 	=> array('administer users')
-	);
-	$items['user/%/private_party/invite'] = array(
-		'page callback' 	=> 'private_party_send_invite',
-		'page arguments'	=> array(1),
-		//'file' 			=> 'private_party.users.inc',
-		'access callback' 	=> 'private_party_check_permission',
-		'access arguments' 	=> array('administer users')
-	);
-	
-	return $items;
+  $items['admin/private_party/groups']         = array(
+    'title'            => 'Administer Private Party Groups',
+    'description'      => 'Administer Private Party Groups',
+    'page callback'    => 'private_party_groups_list',
+    //'file' 			=> 'private_party.users.inc',
+    'access callback'  => 'private_party_check_permission',
+    'access arguments' => array('administer users')
+  );
+
+  $items['admin/private_party/groups/add_child_of/%'] = array(
+    'page callback'    => 'private_party_group_add_user',
+    'page arguments'   => array(4),
+    'access callback'  => 'private_party_check_permission',
+    'access arguments' => array('administer users')
+  );
+  
+  $items['admin/private_party/groups/remove_user_from_group/%/user/%'] = array(
+    'page callback'    => 'private_party_group_remove_user',
+    'page arguments'   => array(4,6),
+    'access callback'  => 'private_party_check_permission',
+    'access arguments' => array('administer users')
+  );
+
+  $items['admin/private_party/groups/add_user_to_group/%'] = array(
+    'page callback'    => 'private_party_group_attach_user',
+    'page arguments'   => array(4),
+    'access callback'  => 'private_party_check_permission',
+    'access arguments' => array('administer users')
+  );
+
+  $items['admin/private_party/groups/edit/%'] = array(
+    'page callback'    => 'private_party_group_edit',
+    'page arguments'   => array(4),
+    'access callback'  => 'private_party_check_permission',
+    'access arguments' => array('administer users')
+  );
+
+  $items['user/%/private_party/invite'] = array(
+    'page callback'    => 'private_party_send_invite_action',
+    'page arguments'   => array(1),
+    //'file' 			=> 'private_party.users.inc',
+    'access callback'  => 'private_party_check_permission',
+    'access arguments' => array('administer users')
+  );
+
+  return $items;
+}
+
+function private_party_group_add_user($parent_gid){
+  $group = new private_party_group();
+  $group->name = t("Untitled Group");
+  $group->child_of = $parent_gid;
+  $group->created_date = date("Y-m-d H:i:s");
+  $group->created_id = $GLOBALS['user']->uid;
+  $group->save();
+  header("Location: " . url("admin/private_party/groups/edit/" . $group->gid));
+  exit;
+}
+
+function private_party_group_remove_user($gid, $uid){
+  db_delete('private_party_group_user')
+    ->condition('uid', $uid)
+    ->condition('gid', $gid)
+    ->execute();
+  $_SESSION['group_focus'] = $gid;
+  header("Location: " . url("admin/private_party/groups"));
+}
+
+function private_party_group_attach_user($group_id){
+  $view = new StdClass();
+  $view->group = private_party_group::loadById($group_id);
+
+  if(count($_POST)){
+    $new_group_user = new private_party_group_user();
+    $new_group_user->gid = $group_id;
+    $new_group_user->uid = $_POST['user'];
+    $new_group_user->save();
+    $_SESSION['group_focus'] = $group_id;
+    header("Location: " . url("admin/private_party/groups"));
+    exit;
+  }
+
+  return private_party_template_view("templates/groups_add_user.phtml", $view);
+}
+
+function private_party_group_edit($gid){
+  // Get the Group
+  $group = private_party_group::search()->where('gid', $gid)->execOne();
+
+  // Build Breadcrumbs
+  $breadcrumb   = array();
+  $breadcrumb[] = l(t('Home'), '<front>');
+  $breadcrumb[] = l(t('Private Party'), 'admin/private_party');
+  $breadcrumb[] = l(t('Groups'), 'admin/private_party/groups');
+  drupal_set_breadcrumb($breadcrumb);
+
+  // Handle the POST
+  if (count($_POST) > 0) {
+    //TODO: Check user has permission to change a question_set
+    if ($_POST['op'] == t("Save changes to Group")) {
+      $group->name  = $_POST['group_name'];
+      $group->save();
+      header("Location: ". url("admin/private_party/groups"));
+      exit;
+    }
+  }
+
+  // Heading
+  $output = '<h3>' . t('Group: "<em>@group_name</em>"', array('@group_name' => $group->name)) . '</h3>';
+
+  // Get the form to change the question_set heading & blurb
+  $output .= "<form method=\"post\" action=\"\" class=\"edit-group\">";
+  $output .= "  <fieldset>";
+  $output .= "    <legend>" . t("Edit this Group") . ":</legend>";
+
+  /*
+   * Question Identifier
+   */
+  $output .= "    <div class=\"fieldset-wrapper\">";
+  $output .= "      <div class=\"form-item form-type-textfield\">";
+  $output .= "        <label>" . t("Group Name") . ":</label>";
+  $output .= "        <input class=\"form-text\" type=\"text\" name=\"group_name\" value=\"{$group->name}\"/>";
+  $output .= "      </div>";
+
+  // Close the wrapper
+  $output .= "    </div>";
+  $output .= "  </fieldset>";
+
+  // Submit button
+  $output .= "  <div class=\"form-actions\" id=\"edit-actions\">";
+  $output .= "    <input type=\"submit\" id=\"edit-submit\" name=\"op\" value=\"".t("Save changes to Group")."\" class=\"form-submit\">";
+  $output .= "  </div>";
+
+  // Close the form
+  $output .= "</form>";
+
+  return $output;
 }
 
 /**
  * Generate a random key
+ *
  * @return string
  */
-function _private_party_get_key(){
-	return sha1(microtime(true).mt_rand(10000,90000));
+function _private_party_get_key() {
+  return sha1(microtime(true) . mt_rand(10000, 90000));
 }
 
-function private_party_send_invite($uid){
-	$account = user_active_record::loadById($uid);
-	if($account){
-		$account->pp_onetime_key = _private_party_get_key();
-		$account->pp_onetime_sent = 'Yes';
-		$account->save();
-		$params['account'] = $account;
-		drupal_mail('private_party', 'onetime_key', $account->mail, user_preferred_language($account), $params);
-		drupal_set_message("Sent a one-time key to {$account->name}'s {$account->mail} mailbox");
-	}
-	header("Location: {$_SERVER['HTTP_REFERER']}");
+/**
+ * Handle the user/%/private_party/invite route
+ *
+ * @param $uid
+ */
+function private_party_send_invite_action($uid) {
+  $account = user_active_record::loadById($uid);
+  if (private_party_send_invite($uid)) {
+    drupal_set_message("Sent a one-time key to {$account->name}'s {$account->mail} mailbox");
+  } else {
+    drupal_set_message("Failed to send a one-time key to {$account->name}'s {$account->mail} mailbox", 'error');
+  }
+  header("Location: {$_SERVER['HTTP_REFERER']}");
 }
 
+/**
+ * Send a user an invite
+ *
+ * @param $uid
+ *
+ * @return bool success
+ */
+function private_party_send_invite($uid) {
+  $account = user_active_record::loadById($uid);
+  if ($account) {
+    $account->pp_onetime_key  = _private_party_get_key();
+    $account->pp_onetime_sent = 'Yes';
+    $account->save();
+    $params['account'] = $account;
+    drupal_mail('private_party', 'onetime_key', $account->mail, user_preferred_language($account), $params);
+
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Private Party Mailer - Hooks hook_mail
+ *
+ * @param $key
+ * @param $message
+ * @param $params
+ */
 function private_party_mail($key, &$message, $params) {
-	$data['user'] = $params['account'];
-	$data['onetimekey'] = $params['account'];
-	$options['language'] = $message['language'];
-	user_mail_tokens($variables, $data, $options);
-	switch($key) {
-		case 'onetime_key':
-			$langcode = $message['language']->language;
-			$message['subject'] = t('Notification from [site:name]', $variables, array('langcode' => $langcode));
-			$message['body'][] = t("Dear [site:name]\n\nYour one time key is [user:one-time-login-url]", $variables, array('langcode' => $langcode));
-			break;
-	}
+  $data['user']        = $params['account'];
+  $data['onetimekey']  = $params['account'];
+  $options['language'] = $message['language'];
+  user_mail_tokens($variables, $data, $options);
+  $variables['@username'] = $data['user']->name;
+  switch ($key) {
+    case 'onetime_key':
+      $langcode           = $message['language']->language;
+      $message['subject'] = t('WMP Invitation', $variables, array('langcode' => $langcode));
+      $message['body'][]  = nl2br(t("Dear @username,\n\nYou have been invited to join the ERTP Web Monitoring Portal. Please click the registration link below and follow the instructions to complete the set-up of your account.\n\n[user:one-time-login-url]", $variables, array('langcode' => $langcode)));
+      break;
+  }
 }
 
-function private_party_users_list(){
-	$view = new StdClass();
-	$view->users = user_active_record::search()
-							->order('name','asc')
-							->exec();
-	return private_party_template_view("templates/users_list.phtml", $view);
+function _private_party_send_invites($uids) {
+  $successes = array();
+  $failures  = array();
+  foreach ($uids as $uid) {
+    $result = private_party_send_invite($uid);
+    if ($result) {
+      $successes[$uid] = user_load($uid);
+    } else {
+      $failures[$uid] = user_load($uid);
+    }
+  }
+  drupal_set_message(
+    "Sent @success_count successfully, failed @fail_count times.",
+    array(
+      '@success_count' => count($successes),
+      '@fail_count'    => count($failures)
+    )
+  );
 }
 
-function private_party_check_permission($permission){
-	global $user;
-	$result = user_access($permission, $user);
-	return $result;
+function private_party_user_post_action() {
+
+  if (isset($_POST['action'])) {
+    switch ($_POST['action']) {
+      case 'invite':
+        _private_party_send_invites($_POST['selected']);
+        break;
+      default:
+        drupal_set_message('No such action as ' . $_POST['action']);
+    }
+  } else {
+    drupal_set_message('No action specified');
+  }
+
+}
+
+
+/**
+ * Users List action
+ *
+ * @return string
+ */
+function private_party_users_list() {
+
+  if (count($_POST)) {
+    private_party_user_post_action();
+    header("Location: {$_SERVER['HTTP_REFERER']}");
+  }
+  $view        = new StdClass();
+  $view->users = user_active_record::search()
+    ->order('name', 'asc')
+    ->exec();
+  drupal_add_js(drupal_get_path('module', 'private_party') . "/js/users.js");
+
+  return private_party_template_view("templates/users_list.phtml", $view);
+}
+
+function private_party_groups_list(){
+  if (count($_POST)) {
+    private_party_group_post_action();
+    header("Location: {$_SERVER['HTTP_REFERER']}");
+  }
+  $view         = new StdClass();
+  $view->groups = private_party_group::search()->where('child_of','0')->exec();
+  drupal_add_js (drupal_get_path('module', 'private_party') . "/js/groups.js");
+  drupal_add_css(drupal_get_path('module', 'private_party') . "/css/tree.css");
+
+  return private_party_template_view("templates/groups_list.phtml", $view);
+}
+
+/**
+ * Check a given permission for a user.
+ *
+ * @param $permission
+ *
+ * @return bool
+ */
+function private_party_check_permission($permission) {
+  global $user;
+  $result = user_access($permission, $user);
+
+  return $result;
 }
 
 /**
  * Crunch through a view
- * @param string $file File of the template to call.
+ *
+ * @param string       $file File of the template to call.
  * @param array|object $view Optional view array.
+ *
  * @return string
  */
-function private_party_template_view($file, $view = null){
-	$file = DRUPAL_ROOT . "/" . drupal_get_path('module','private_party') . "/" . $file;
-	if(!file_exists($file)){
-		return "Cannot find {$file}";
-	}
-	extract((array) $view);
-	ob_start();
-	require($file);
-	$markup = ob_get_contents();
-	ob_end_clean();
-	return $markup;
+function private_party_template_view($file, $view = null) {
+  $file = DRUPAL_ROOT . "/" . drupal_get_path('module', 'private_party') . "/" . $file;
+  if (!file_exists($file)) {
+    return "Cannot find {$file}";
+  }
+  extract((array)$view);
+  ob_start();
+  require($file);
+  $markup = ob_get_contents();
+  ob_end_clean();
+
+  return $markup;
 }

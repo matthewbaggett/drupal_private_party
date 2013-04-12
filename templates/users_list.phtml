@@ -1,9 +1,10 @@
 <?php 
 $header = array();
-$header[] = '';
+$header[] = "<input type=\"checkbox\" name=\"select_all\"/>";
 $header[] = t('Username');
 $header[] = t('Roles');
-$header[] = t('Email Address');
+$header[] = t('Groups');
+//$header[] = t('Email Address');
 $header[] = t('Last Seen');
 $header[] = t('Created');
 $header[] = array(
@@ -14,10 +15,17 @@ $header[] = array(
 $rows = array();
 foreach ($users as $user):
 	$row = array();
-	$row[] = "<input type=\"checkbox\" name=\"selected[]\" value=\"{$user->uid}\"/>";
+	$groups = array();
+	foreach(private_party_group::get_by_user($user->uid) as $private_party_group){
+		foreach($private_party_group->get_groups() as $group){
+			$groups[] = $group->__toString();
+		}
+	}
+	$row[] = "<input class=\"batch\" type=\"checkbox\" name=\"selected[]\" value=\"{$user->uid}\"/>";
 	$row[] = $user->name;
 	$row[] = implode(", ", $user->get_roles());
-	$row[] = $user->mail;
+	$row[] = implode(", ", $groups);
+	//$row[] = $user->mail;
 	$row[] = $user->access > 0 ? date("Y-m-d H:i:s", $user->access) : 'never';
 	$row[] = $user->created > 0 ? date("Y-m-d H:i:s", $user->created) : 'never';
 	$row[] = l(t("Send Invite"),"user/{$user->uid}/private_party/invite");
@@ -26,11 +34,20 @@ foreach ($users as $user):
 	$rows[] = $row;
 endforeach; 
 ?>
-<ul class="action-links">
-    <li><a href="/?q=admin/people/create">Add user</a></li>
-</ul>
-<div class="form-item">
-	<div class="table-wrapper">
-		<?=theme('table', array('header' => $header, 'rows' => $rows, 'empty' => t('No users found. Wat.')));?>
-	</div>
-</div>
+<?php require("tabs.phtml");?>
+<form class="user_list" action="" method="post">
+    <input type="hidden" name="action" value="none">
+    <ul class="action-links">
+        <li><?=l(t("Add User"), "admin/people/create");?></li>
+    </ul>
+    <ul class="action-links actions-batch">
+        <li><?=t("Batch Actions");?></li>
+        <!--<li class="button" rel="remove"><?=l(t("Remove"), "batch_remove");?></li>-->
+        <li class="button" rel="invite"><?=l(t("Invite"), "invite");?></li>
+    </ul>
+    <div class="form-item">
+        <div class="table-wrapper">
+            <?=theme('table', array('header' => $header, 'rows' => $rows, 'empty' => t('No users found. Wat.')));?>
+        </div>
+    </div>
+</form>

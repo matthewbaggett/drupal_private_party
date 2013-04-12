@@ -1,0 +1,94 @@
+<?php
+$header = array();
+$header[] = t('Group');
+
+$header[] = array(
+  'data' => t('Operations'),
+  'colspan' => '2'
+);
+
+
+?>
+
+<?php
+function tree_iterate($groups, $parent = null){
+  $groups = array_values($groups);
+  ob_start();
+  ?>
+  <?php
+  foreach ($groups as $k => $group){
+    ?>
+    <li class="label group collapsed group_<?=$group->gid?>" rel="<?=$group->gid?>">
+      <div class="icon"></div>
+      <span class="name"><?=$group->get_name(); ?></span>
+      <a class="edit_button" title="<?=t("Edit Group")?>" href="<?=url("admin/private_party/groups/edit/{$group->gid}")?>"></a>
+      <div class="clear"></div>
+    </li>
+    <ul class="tree collapsed group_<?=$group->gid?>" rel="<?=$group->gid?>">
+      <?=tree_iterate($group->get_children(), $group); ?>
+      <?php foreach($group->get_users() as $user): ?>
+        <?php if($user instanceof user_active_record): ?>
+          <li class="user">
+            <div class="icon"></div>
+            <span class="name"><?=l($user->name, "admin/{$user->uid}/edit")?></span>
+            <a class="remove" href="<?=url("admin/private_party/groups/remove_user_from_group/{$group->gid}/user/{$user->uid}")?>" title="<?=t("Remove user from Group")?>"></a>
+            <div class="clear"></div>
+          </li>
+        <?php endif; ?>
+      <?php endforeach; ?>
+      <li class="add_user"><?=l("[" . t("Add User here") . "]", "admin/private_party/groups/add_user_to_group/{$group->gid}")?></li>
+    </ul>
+  <?php } ?>
+  <?php if($parent): ?>
+    <?php $child_of_gid = $parent->gid; ?>
+  <?php else: ?>
+    <?php $child_of_gid = 0; ?>
+  <?php endif; ?>
+  <li class="add"><?=l("[" . t("Add new Group here") . "]", "admin/private_party/groups/add_child_of/{$child_of_gid}"); ?></li>
+
+  <?php
+  $output = ob_get_contents();
+  ob_end_clean();
+  return $output;
+}
+?>
+
+<?php require("tabs.phtml");?>
+<form class="group_list" action="" method="post">
+  <input type="hidden" name="action" value="none">
+  <ul class="action-links actions-batch">
+    <li><?=t("Batch Actions");?></li>
+    <li class="button expand"><?=t("Expand all");?></li>
+    <li class="button contract"><?=t("Contract all");?></li>
+  </ul>
+  <div class="form-item">
+    <div class="table-wrapper">
+      <ul id="group_tree" class="tree">
+        <?=tree_iterate($groups); ?>
+      </ul>
+    </div>
+  </div>
+</form>
+
+<?php if(isset($_SESSION['group_focus'])): ?>
+  <script type="text/javascript">
+    var group_focus = <?php echo $_SESSION['group_focus']?>;
+    console.log("Group focus: " + group_focus);
+    jQuery(document).ready(function(){
+      var group = jQuery('.group_' + group_focus);
+      group
+        .removeClass('collapsed')
+        .addClass('expanded')
+      var parent_group = group;
+      for(var i = 0; i<10; i++){
+        parent_group = parent_group.closest('ul.tree');
+        jQuery('.group_' + parent_group.attr('rel'))
+          .removeClass('collapsed')
+          .addClass('expanded');
+      }
+
+    });
+  </script>
+  <?php unset($_SESSION['group_focus']); ?>
+<?php endif; ?>
+
