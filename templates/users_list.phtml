@@ -38,7 +38,10 @@ endforeach;
 <form class="user_list" action="" method="post">
     <input type="hidden" name="action" value="none">
     <ul class="action-links">
-        <li><?=l(t("Add User"), "admin/people/create");?></li>
+      <li><?=l(t("Add User"), "admin/people/create");?></li>
+      <?php if(function_exists('survey_reporting_user_data_export')): ?>
+      <li><?=l(t("Export Users List"), "reports/user-data-download");?></li>
+      <?php endif; ?>
     </ul>
     <ul class="action-links actions-batch">
         <li><?=t("Batch Actions");?></li>
