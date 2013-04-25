@@ -46,7 +46,9 @@ ul.tree li .icon,
 ul.tree li.user  .remove,
 ul.tree li.group .remove,
 ul.tree li.user  .edit_button,
-ul.tree li.group .edit_button{
+ul.tree li.group .edit_button,
+ul.tree li.user  .delete_button,
+ul.tree li.group .delete_button{
     display:        block;
     float:          left;
     width:          16px;
@@ -60,13 +62,16 @@ ul.tree li.group .icon{
     background-image: url("../images/group.png");
 }
 ul.tree li.user  .remove,
-ul.tree li.group .remove{
+ul.tree li.group .remove,
+ul.tree li.user  .delete_button,
+ul.tree li.group .delete_button{
     background-image: url("../images/delete.png");
 }
 ul.tree li.user  .edit_button,
 ul.tree li.group .edit_button{
     background-image: url("../images/edit.png");
 }
+
 
 ul.tree li.user  span.name,
 ul.tree li.group span.name{

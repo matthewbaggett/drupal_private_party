@@ -53,6 +53,13 @@ function private_party_menu() {
     'access arguments' => array('administer users')
   );
 
+  $items['admin/private_party/groups/delete/%'] = array(
+    'page callback'    => 'private_party_group_delete',
+    'page arguments'   => array(4),
+    'access callback'  => 'private_party_check_permission',
+    'access arguments' => array('administer users')
+  );
+
   $items['user/%/private_party/invite'] = array(
     'page callback'    => 'private_party_send_invite_action',
     'page arguments'   => array(1),
@@ -99,6 +106,18 @@ function private_party_group_attach_user($group_id){
   }
 
   return private_party_template_view("templates/groups_add_user.phtml", $view);
+}
+
+function private_party_group_delete($gid){
+  $group = private_party_group::search()->where('gid', $gid)->execOne();
+  if($group instanceof private_party_group){
+    $group->delete();
+    drupal_set_message("Deleted {$group->name}");
+  }else{
+    drupal_set_message("Couldn't find a private party group with id {$gid}");
+  }
+  header("Location: ". url("admin/private_party/groups"));
+  exit;
 }
 
 function private_party_group_edit($gid){

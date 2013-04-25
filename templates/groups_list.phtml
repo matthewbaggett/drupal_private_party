@@ -22,6 +22,7 @@ function tree_iterate($groups, $parent = null){
       <div class="icon"></div>
       <span class="name"><?=$group->get_name(); ?></span>
       <a class="edit_button" title="<?=t("Edit Group")?>" href="<?=url("admin/private_party/groups/edit/{$group->gid}")?>"></a>
+      <a class="delete_button" title="<?=t("Delete Group")?>" href="<?=url("admin/private_party/groups/delete/{$group->gid}")?>"></a>
       <div class="clear"></div>
     </li>
     <ul class="tree collapsed group_<?=$group->gid?>" rel="<?=$group->gid?>">
