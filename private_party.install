@@ -48,3 +48,10 @@ function private_party_update_7001(){
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1
   ");
 }
+
+/**
+ * Make pp_onetime_key nullable
+ */
+function private_party_update_7002(){
+  db_query("ALTER TABLE {users} CHANGE COLUMN `pp_onetime_key` `pp_onetime_key` VARCHAR(40) NULL;");
+}
