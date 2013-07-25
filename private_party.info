@@ -6,3 +6,4 @@ files[] = includes/classes/html2text.inc
 configure = admin/private_party
 dependencies[] = mailsystem
 dependencies[] = active_record
+stylesheets[all][] = css/private-party.css
