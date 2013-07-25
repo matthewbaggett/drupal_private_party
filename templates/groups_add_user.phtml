@@ -8,10 +8,10 @@
     <div class="fieldset-wrapper">
 
       <div class="form-item form-type-textfield">
-        <label><?=t("User to add")?>:</label>
+        <label><?php echo t("User to add"); ?>:</label>
         <select name="user">
           <?php foreach(user_active_record::search()->where('status',1)->order('name','asc')->exec() as $user): ?>
-            <option value="<?php echo $user->uid?>"><?php echo $user->name?></option>
+            <option value="<?php echo $user->uid?>"><?php echo _private_party_get_user_name($user->uid); ?></option>
           <?php endforeach; ?>
         </select>
       </div>
