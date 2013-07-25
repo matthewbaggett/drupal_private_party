@@ -1,6 +1,4 @@
 <?php
-require_once("models/private_party_group_user.inc");
-require_once("models/private_party_groups.inc");
 /**
  * Implement hook_menu()
  *
