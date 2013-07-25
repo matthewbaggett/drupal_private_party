@@ -8,7 +8,7 @@ window.onload = function () {
     compute_tree_lasts(group_tree);
     jQuery('li.label', group_tree).bind('click', function(){
         var gid = jQuery(this).attr('rel');
-        var group = jQuery('ul.tree .group_' + gid);
+        var group = jQuery('ul.private-party-tree .group_' + gid);
         if(group.hasClass('collapsed')){
             group
                 .addClass('expanded')
@@ -21,13 +21,13 @@ window.onload = function () {
     });
     
     jQuery('.button.expand').bind('click', function(){
-        jQuery('ul.tree li.label, ul.tree ul.tree')
+        jQuery('ul.private-party-tree li.label, ul.tree ul.tree')
             .addClass('expanded')
             .removeClass('collapsed');
     });
 
     jQuery('.button.contract').bind('click', function(){
-        jQuery('ul.tree li.label, ul.tree ul.tree')
+        jQuery('ul.private-party-tree li.label, ul.tree ul.tree')
             .addClass('collapsed')
             .removeClass('expanded');
     });

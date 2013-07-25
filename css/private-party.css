@@ -1,22 +1,24 @@
-ul.tree,
-ul.tree ul {
+ul.private-party-tree,
+ul.private-party-tree ul {
     list-style-type: none;
     background: url("../images/vline.png") repeat-y;
     background-repeat: repeat-y;
     margin: 0 !important;
     padding: 0 !important;
 }
-ul.tree.last{
+ul.private-party-tree.last{
     background: none repeat scroll 0 0 white;
     margin-left: 0 !important;
     padding-left: 20px !important;
 }
 
-ul.tree ul {
+ul.private-party-tree ul {
     margin-left: 15px !important;
+    clear: left;
+    float: left;
 }
 
-ul.tree li {
+ul.private-party-tree li {
     margin: 0 !important;
     padding: 0 12px !important;
     line-height: 20px !important;
@@ -25,56 +27,58 @@ ul.tree li {
     list-style-position: inside;
     list-style-image: none;
     list-style-type: none;
+    float: left;
+    clear: left;
 }
-ul.tree li span.name{
+ul.private-party-tree li span.name{
     cursor: pointer;
 }
-ul.tree li.add,
-ul.tree li.add_user,
-ul.tree li a.control{
+ul.private-party-tree li.add,
+ul.private-party-tree li.add_user,
+ul.private-party-tree li a.control{
     font-style: italic;
 }
 
-ul.tree li.last {
+ul.private-party-tree li.last {
     background: #fff url("../images/lastnode.png") no-repeat;
 }
 
 ul.collapsed{
     display: none;
 }
-ul.tree li .icon,
-ul.tree li.user  .remove,
-ul.tree li.group .remove,
-ul.tree li.user  .edit_button,
-ul.tree li.group .edit_button,
-ul.tree li.user  .delete_button,
-ul.tree li.group .delete_button{
+ul.private-party-tree li .icon,
+ul.private-party-tree li.user  .remove,
+ul.private-party-tree li.group .remove,
+ul.private-party-tree li.user  .edit_button,
+ul.private-party-tree li.group .edit_button,
+ul.private-party-tree li.user  .delete_button,
+ul.private-party-tree li.group .delete_button{
     display:        block;
     float:          left;
     width:          16px;
     height:         16px;
     margin-right:   5px;
 }
-ul.tree li.user .icon{
+ul.private-party-tree li.user .icon{
     background-image: url("../images/user.png");
 }
-ul.tree li.group .icon{
+ul.private-party-tree li.group .icon{
     background-image: url("../images/group.png");
 }
-ul.tree li.user  .remove,
-ul.tree li.group .remove,
-ul.tree li.user  .delete_button,
-ul.tree li.group .delete_button{
+ul.private-party-tree li.user  .remove,
+ul.private-party-tree li.group .remove,
+ul.private-party-tree li.user  .delete_button,
+ul.private-party-tree li.group .delete_button{
     background-image: url("../images/delete.png");
 }
-ul.tree li.user  .edit_button,
-ul.tree li.group .edit_button{
+ul.private-party-tree li.user  .edit_button,
+ul.private-party-tree li.group .edit_button{
     background-image: url("../images/edit.png");
 }
 
 
-ul.tree li.user  span.name,
-ul.tree li.group span.name{
+ul.private-party-tree li.user  span.name,
+ul.private-party-tree li.group span.name{
     float:          left;
     display:        block;
     margin-right:   5px;
