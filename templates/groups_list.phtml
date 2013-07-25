@@ -18,26 +18,26 @@ function tree_iterate($groups, $parent = null){
   <?php
   foreach ($groups as $k => $group){
     ?>
-    <li class="label group collapsed group_<?=$group->gid?>" rel="<?=$group->gid?>">
+    <li class="label group collapsed group_<?php echo $group->gid?>" rel="<?php echo $group->gid?>">
       <div class="icon"></div>
-      <span class="name"><?=$group->get_name(); ?></span>
-      <a class="edit_button" title="<?=t("Edit Group")?>" href="<?=url("admin/private_party/groups/edit/{$group->gid}")?>"></a>
-      <a class="delete_button" title="<?=t("Delete Group")?>" href="<?=url("admin/private_party/groups/delete/{$group->gid}")?>"></a>
+      <span class="name"><?php echo $group->get_name(); ?></span>
+      <a class="edit_button" title="<?php echo t("Edit Group")?>" href="<?php echo url("admin/private_party/groups/edit/{$group->gid}")?>"></a>
+      <a class="delete_button" title="<?php echo t("Delete Group")?>" href="<?php echo url("admin/private_party/groups/delete/{$group->gid}")?>"></a>
       <div class="clear"></div>
     </li>
-    <ul class="tree collapsed group_<?=$group->gid?>" rel="<?=$group->gid?>">
-      <?=tree_iterate($group->get_children(), $group); ?>
+    <ul class="tree collapsed group_<?php echo $group->gid?>" rel="<?php echo $group->gid?>">
+      <?php echo tree_iterate($group->get_children(), $group); ?>
       <?php foreach($group->get_users() as $user): ?>
         <?php if($user instanceof user_active_record): ?>
           <li class="user">
             <div class="icon"></div>
-            <span class="name"><?=l($user->name, "admin/{$user->uid}/edit")?></span>
-            <a class="remove" href="<?=url("admin/private_party/groups/remove_user_from_group/{$group->gid}/user/{$user->uid}")?>" title="<?=t("Remove user from Group")?>"></a>
+            <span class="name"><?php echo l($user->name, "admin/{$user->uid}/edit")?></span>
+            <a class="remove" href="<?php echo url("admin/private_party/groups/remove_user_from_group/{$group->gid}/user/{$user->uid}")?>" title="<?php echo t("Remove user from Group")?>"></a>
             <div class="clear"></div>
           </li>
         <?php endif; ?>
       <?php endforeach; ?>
-      <li class="add_user"><?=l("[" . t("Add User here") . "]", "admin/private_party/groups/add_user_to_group/{$group->gid}")?></li>
+      <li class="add_user"><?php echo l("[" . t("Add User here") . "]", "admin/private_party/groups/add_user_to_group/{$group->gid}")?></li>
     </ul>
   <?php } ?>
   <?php if($parent): ?>
@@ -45,7 +45,7 @@ function tree_iterate($groups, $parent = null){
   <?php else: ?>
     <?php $child_of_gid = 0; ?>
   <?php endif; ?>
-  <li class="add"><?=l("[" . t("Add new Group here") . "]", "admin/private_party/groups/add_child_of/{$child_of_gid}"); ?></li>
+  <li class="add"><?php echo l("[" . t("Add new Group here") . "]", "admin/private_party/groups/add_child_of/{$child_of_gid}"); ?></li>
 
   <?php
   $output = ob_get_contents();
@@ -58,14 +58,14 @@ function tree_iterate($groups, $parent = null){
 <form class="group_list" action="" method="post">
   <input type="hidden" name="action" value="none">
   <ul class="action-links actions-batch">
-    <li><?=t("Batch Actions");?></li>
-    <li class="button expand"><?=t("Expand all");?></li>
-    <li class="button contract"><?=t("Contract all");?></li>
+    <li><?php echo t("Batch Actions");?></li>
+    <li class="button expand"><?php echo t("Expand all");?></li>
+    <li class="button contract"><?php echo t("Contract all");?></li>
   </ul>
   <div class="form-item">
     <div class="table-wrapper">
       <ul id="group_tree" class="tree">
-        <?=tree_iterate($groups); ?>
+        <?php echo tree_iterate($groups); ?>
       </ul>
     </div>
   </div>

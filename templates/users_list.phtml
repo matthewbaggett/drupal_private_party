@@ -50,7 +50,7 @@ endforeach;
     </ul>
     <div class="form-item">
         <div class="table-wrapper">
-            <?=theme('table', array('header' => $header, 'rows' => $rows, 'empty' => t('No users found. Wat.')));?>
+            <?php echo theme('table', array('header' => $header, 'rows' => $rows, 'empty' => t('No users found. Wat.')));?>
         </div>
     </div>
 </form>
