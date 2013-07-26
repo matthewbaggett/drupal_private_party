@@ -6,6 +6,11 @@ class private_party_user extends user_active_record{
    * @param $group_name
    */
   public function has_group($group_name){
+    // Administrator has all the things.
+    if($this->uid == 1){
+      return TRUE;
+    }
+
     foreach($this->get_groups() as $group){
       /* @var $group_user private_party_group */
       if($group->name == $group_name){
