@@ -38,19 +38,19 @@ endforeach;
 <form class="user_list" action="" method="post">
     <input type="hidden" name="action" value="none">
     <ul class="action-links">
-      <li><?=l(t("Add User"), "admin/people/create");?></li>
+      <li><?php echo l(t("Add User"), "admin/people/create");?></li>
       <?php if(function_exists('survey_reporting_user_data_export')): ?>
-      <li><?=l(t("Export Users List"), "reports/user-data-download");?></li>
+      <li><?php echo l(t("Export Users List"), "reports/user-data-download");?></li>
       <?php endif; ?>
     </ul>
     <ul class="action-links actions-batch">
-        <li><?=t("Batch Actions");?></li>
-        <!--<li class="button" rel="remove"><?=l(t("Remove"), "batch_remove");?></li>-->
-        <li class="button" rel="invite"><?=l(t("Invite"), "invite");?></li>
+        <li><?php echo t("Batch Actions");?></li>
+        <!--<li class="button" rel="remove"><?php echo l(t("Remove"), "batch_remove");?></li>-->
+        <li class="button" rel="invite"><?php echo l(t("Invite"), "invite");?></li>
     </ul>
     <div class="form-item">
         <div class="table-wrapper">
-            <?=theme('table', array('header' => $header, 'rows' => $rows, 'empty' => t('No users found. Wat.')));?>
+            <?php echo theme('table', array('header' => $header, 'rows' => $rows, 'empty' => t('No users found. Wat.')));?>
         </div>
     </div>
 </form>

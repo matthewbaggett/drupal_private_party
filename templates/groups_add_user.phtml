@@ -1,17 +1,17 @@
-<h3><?=t('Add user to Group: <em>@group</em>', array('@group' => $group->__toString())); ?> </h3>
+<h3><?php echo t('Add user to Group: <em>@group</em>', array('@group' => $group->__toString())); ?> </h3>
 
 <form method="post" action="" class="message_edit">
   <?php if (isset($_SERVER['HTTP_REFERER'])): ?>
-    <input name="dest" type="hidden" value="<?=$_SERVER['HTTP_REFERER']?>"/>
+    <input name="dest" type="hidden" value="<?php echo $_SERVER['HTTP_REFERER']?>"/>
   <?php endif; ?>
   <fieldset>
     <div class="fieldset-wrapper">
 
       <div class="form-item form-type-textfield">
-        <label><?=t("User to add")?>:</label>
+        <label><?php echo t("User to add")?>:</label>
         <select name="user">
           <?php foreach(user_active_record::search()->where('status',1)->order('name','asc')->exec() as $user): ?>
-            <option value="<?=$user->uid?>"><?=$user->name?></option>
+            <option value="<?php echo $user->uid?>"><?php echo $user->name?></option>
           <?php endforeach; ?>
         </select>
       </div>
@@ -19,6 +19,6 @@
     </div>
   </fieldset>
   <div class="form-actions" id="edit-actions">
-    <input type="submit" id="edit-submit" name="op" value="<?=t("Add user")?>" class="form-submit">
+    <input type="submit" id="edit-submit" name="op" value="<?php echo t("Add user")?>" class="form-submit">
   </div>
 </form>
