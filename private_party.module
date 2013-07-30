@@ -1,6 +1,4 @@
 <?php
-require_once("models/private_party_group_user.inc");
-require_once("models/private_party_groups.inc");
 /**
  * Implement hook_menu()
  *
@@ -263,7 +261,6 @@ function _private_party_send_invites($uids) {
 }
 
 function private_party_user_post_action() {
-
   if (isset($_POST['action'])) {
     switch ($_POST['action']) {
       case 'invite':
@@ -275,9 +272,7 @@ function private_party_user_post_action() {
   } else {
     drupal_set_message('No action specified');
   }
-
 }
-
 
 /**
  * Users List action
@@ -307,7 +302,6 @@ function private_party_groups_list(){
   $view         = new StdClass();
   $view->groups = private_party_group::search()->where('child_of','0')->exec();
   drupal_add_js (drupal_get_path('module', 'private_party') . "/js/groups.js");
-  drupal_add_css(drupal_get_path('module', 'private_party') . "/css/tree.css");
 
   return private_party_template_view("templates/groups_list.phtml", $view);
 }
@@ -346,4 +340,25 @@ function private_party_template_view($file, $view = null) {
   ob_end_clean();
 
   return $markup;
+}
+
+/**
+ * Pull out a Users display name, adding support for realname, etc where available.
+ *
+ * @param $uid int User id
+ *
+ * @return string
+ */
+function _private_party_get_user_name($uid){
+  $user = user_load($uid);
+  $name = $user->name;
+  if(function_exists('realname_menu')){
+    if($user->uid > 0){
+      $name = realname_load($user);
+    }
+    $display_name = "{$name} ({$user->name})";
+  }else{
+    $display_name = $user->name;
+  }
+  return $display_name;
 }

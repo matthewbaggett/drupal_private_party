@@ -6,8 +6,6 @@ $header[] = array(
   'data' => t('Operations'),
   'colspan' => '2'
 );
-
-
 ?>
 
 <?php
@@ -25,13 +23,13 @@ function tree_iterate($groups, $parent = null){
       <a class="delete_button" title="<?php echo t("Delete Group")?>" href="<?php echo url("admin/private_party/groups/delete/{$group->gid}")?>"></a>
       <div class="clear"></div>
     </li>
-    <ul class="tree collapsed group_<?php echo $group->gid?>" rel="<?php echo $group->gid?>">
+    <ul class="private-party-tree collapsed group_<?php echo $group->gid?>" rel="<?php echo $group->gid?>">
       <?php echo tree_iterate($group->get_children(), $group); ?>
       <?php foreach($group->get_users() as $user): ?>
         <?php if($user instanceof user_active_record): ?>
           <li class="user">
             <div class="icon"></div>
-            <span class="name"><?php echo l($user->name, "admin/{$user->uid}/edit")?></span>
+            <span class="name"><?php echo l(_private_party_get_user_name($user->uid), "admin/{$user->uid}/edit")?></span>
             <a class="remove" href="<?php echo url("admin/private_party/groups/remove_user_from_group/{$group->gid}/user/{$user->uid}")?>" title="<?php echo t("Remove user from Group")?>"></a>
             <div class="clear"></div>
           </li>
@@ -63,8 +61,8 @@ function tree_iterate($groups, $parent = null){
     <li class="button contract"><?php echo t("Contract all");?></li>
   </ul>
   <div class="form-item">
-    <div class="table-wrapper">
-      <ul id="group_tree" class="tree">
+    <div class="table-wrapper"> <<<<<<< HEAD
+      <ul id="group_tree" class="private-party-tree">
         <?php echo tree_iterate($groups); ?>
       </ul>
     </div>
@@ -82,7 +80,7 @@ function tree_iterate($groups, $parent = null){
         .addClass('expanded')
       var parent_group = group;
       for(var i = 0; i<10; i++){
-        parent_group = parent_group.closest('ul.tree');
+        parent_group = parent_group.closest('ul.private-party-tree');
         jQuery('.group_' + parent_group.attr('rel'))
           .removeClass('collapsed')
           .addClass('expanded');
