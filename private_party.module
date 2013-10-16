@@ -207,7 +207,7 @@ function private_party_send_invite($uid) {
   $account = user_active_record::loadById($uid);
   if ($account) {
     $account->pp_onetime_key  = _private_party_get_key();
-    $account->pp_onetime_sent = 'Yes';
+    $account->pp_onetime_sent = 1;
     $account->save();
     $params['account'] = $account;
     drupal_mail('private_party', 'onetime_key', $account->mail, user_preferred_language($account), $params);
