@@ -1,26 +1,74 @@
 <?php
 
-function private_party_install(){
-  db_query("
-		ALTER TABLE {users}
-			ADD `pp_onetime_sent` ENUM('Yes', 'No') NOT NULL DEFAULT  'No',
-			ADD `pp_onetime_key` VARCHAR( 40 ) NOT NULL
-	");
-}
+function private_party_schema(){
+  $schema['private_party_groups'] = array(
+    'description' => 'TODO: please describe this table!',
+    'fields' => array(
+      'gid' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'created_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'datetime',
+        'not null' => TRUE,
+      ),
+      'created_id' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'deleted' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '3',
+        'not null' => TRUE,
+        'default' => 'No',
+      ),
+      'child_of' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('gid'),
+    'indexes' => array(
+      'child_of' => array('child_of'),
+    ),
+  );
 
-function private_party_uninstall() {
-  db_query("
-		ALTER TABLE {`users`}
-  			DROP `pp_onetime_sent`,
-  			DROP `pp_onetime_key`;
-	");
+  $schema['private_party_group_user'] = array(
+    'description' => 'TODO: please describe this table!',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'gid' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('uid', 'gid'),
+  );
+  return $schema;
 }
 
 function private_party_schema_alter(&$schema){
   $schema['users']['fields']['pp_onetime_sent'] = array(
-    'type' => 'int',
+    'type' => 'varchar',
+    'length' => '3',
     'not null' => TRUE,
-    'default' => 0,
+    'default' => 'No',
     'description' => 'Private Party. Users onetime key sent?',
   );
   $schema['users']['fields']['pp_onetime_key'] = array(
@@ -31,63 +79,15 @@ function private_party_schema_alter(&$schema){
   );
 }
 
-/**
- * Private Party columns pp_onetime_sent & pp_onetime_key should be nullable.
- */
-function private_party_update_7000(){
-  db_query("ALTER TABLE  {users} CHANGE `pp_onetime_sent`  `pp_onetime_sent` ENUM(  'Yes',  'No' ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT  'No'");
-  db_query("ALTER TABLE  {users} CHANGE `pp_onetime_key`  `pp_onetime_key` VARCHAR( 40 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL");
-}
-
-/**
- * Add private party groups and group_users
- */
-function private_party_update_7001(){
+function private_party_install(){
   db_query("
-    CREATE TABLE IF NOT EXISTS {private_party_groups} (
-      `gid` int(11) NOT NULL AUTO_INCREMENT,
-      `name` text NOT NULL,
-      `created_date` datetime NOT NULL,
-      `created_id` int(11) NOT NULL,
-      `deleted` enum('Yes','No') NOT NULL DEFAULT 'No',
-      `child_of` int(11) DEFAULT NULL,
-      PRIMARY KEY (`gid`),
-      KEY `child_of` (`child_of`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=latin1
-  ");
-  db_query("
-    CREATE TABLE IF NOT EXISTS {private_party_group_user} (
-      `uid` int(11) NOT NULL,
-      `gid` int(11) NOT NULL,
-      PRIMARY KEY (`uid`,`gid`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=latin1
-  ");
+		ALTER TABLE {users}
+			ADD `pp_onetime_sent` VARCHAR ( 3 ) NOT NULL DEFAULT  'No',
+			ADD `pp_onetime_key` VARCHAR( 40 ) NOT NULL
+	");
 }
 
-/**
- * Make pp_onetime_key nullable
- */
-function private_party_update_7002(){
-  db_query("ALTER TABLE {users} CHANGE COLUMN `pp_onetime_key` `pp_onetime_key` VARCHAR(40) NULL;");
-}
-
-/**
- * Make pp_onetime_key nullable. No really this time.
- */
-function private_party_update_7003(){
-  db_query("ALTER TABLE {users} CHANGE `pp_onetime_key`  `pp_onetime_key` VARCHAR( 40 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL");
-}
-
-/**
- * Make pp_onetime_sent A boolean
- */
-function private_party_update_7004(){
-  db_query("ALTER TABLE {users} CHANGE COLUMN `pp_onetime_sent` `pp_onetime_sent` INT(1) NOT NULL DEFAULT 0;");
-}
-
-/**
- * Make pp_onetime_key nullable. For the 3rd time
- */
-function private_party_update_7005(){
-  db_query("ALTER TABLE {users} CHANGE COLUMN `pp_onetime_key`  `pp_onetime_key` VARCHAR( 40 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL");
+function private_party_uninstall() {
+  db_drop_field('users', 'pp_onetime_sent');
+  db_drop_field('users', 'pp_onetime_key');
 }
