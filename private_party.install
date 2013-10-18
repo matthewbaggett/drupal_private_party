@@ -83,7 +83,7 @@ function private_party_install(){
   db_query("
 		ALTER TABLE {users}
 			ADD `pp_onetime_sent` VARCHAR ( 3 ) NOT NULL DEFAULT  'No',
-			ADD `pp_onetime_key` VARCHAR( 40 ) NOT NULL
+			ADD `pp_onetime_key` VARCHAR( 40 ) NULL
 	");
 }
 
