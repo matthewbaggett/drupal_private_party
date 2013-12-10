@@ -41,7 +41,7 @@ class private_party_user extends user_active_record{
    *
    * @return private_party_user
    */
-  static public function current(){
-    return parent::current();
+  static public function current($force_reload = true){
+    return parent::current(true);
   }
 }
